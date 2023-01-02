@@ -2,17 +2,24 @@ package com.example.account.service;
 import com.example.account.domain.Account;
 import com.example.account.domain.AccountUser;
 import com.example.account.dto.AccountDto;
+import com.example.account.dto.AccountInfo;
 import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
 import com.example.account.type.AccountStatus;
 import com.example.account.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.example.account.type.AccountStatus.IN_USE;
 
@@ -79,8 +86,6 @@ public class AccountService {
 
         return AccountDto.fromEntity(account);
 
-
-
     }
 
     private void validateDeleteAccount(AccountUser accountUser,Account account){
@@ -92,5 +97,17 @@ public class AccountService {
         }
         if(account.getBalance() > 0)
             throw new AccountException(ErrorCode.BALANCE_NOT_EMPTY);
+    }
+
+    public List<AccountDto> getAccountByUserId(Long userId){
+        AccountUser accountUser = accountUserRepository.findById(userId)
+                .orElseThrow(()-> new AccountException(ErrorCode.USER_NOT_FOUND));
+
+
+        List<Account> accounts = accountRepository.findByAccountUser(accountUser);
+
+        return accounts.stream()
+                .map(AccountDto::fromEntity)
+                .collect(Collectors.toList());
     }
 }
