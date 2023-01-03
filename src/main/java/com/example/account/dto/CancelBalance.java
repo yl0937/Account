@@ -2,24 +2,18 @@ package com.example.account.dto;
 
 import com.example.account.type.TransactionResultType;
 import lombok.*;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 
-public class UseBalance {
+public class CancelBalance {
 
     @Getter
     @Setter
     @AllArgsConstructor
     public static class Request{
-        @NotNull
-        @Min(1)
-        private Long userId;
-
+        @NotBlank
+        private String transactionId;
 
         @NotBlank
         @Size(min=9,max=9)
@@ -27,6 +21,7 @@ public class UseBalance {
 
         @NotNull
         @Min(0)
+        @Max(1000_000_000)
         private Long amount;
     }
 
@@ -42,6 +37,9 @@ public class UseBalance {
         private  Long amount;
         private LocalDateTime transactedAt;
 
+        private Long onlyForCancel;
+
+
         public static Response from(TransactionDto transactionDto){
             return Response.builder()
                     .accountNumber(transactionDto.getAccountNumber())
@@ -52,4 +50,6 @@ public class UseBalance {
                     .build();
         }
     }
+
+
 }
